@@ -1,0 +1,2 @@
+from src.linear_regression_dashboard.get_data.get_data import get_google_trends_mentions as GoogleTrendsMentions
+from src.linear_regression_dashboard.get_data.get_data import get_fred_data as FredData
