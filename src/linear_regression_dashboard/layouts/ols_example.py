@@ -162,15 +162,15 @@ def OLSExampleLayout():
 
     X_matrix = r'\mathbf{X} = \begin{bmatrix} 1 & x_1 \\ 1 & x_2 \\ \vdots & \vdots \\ 1 & x_n \end{bmatrix}'
     X_values = (r'\mathbf{X} = \begin{bmatrix} 1 & ' +
-                f'{ols_df['economic_growth_rate'][0]:.2f}' + r' \\ 1 & ' +
-                f'{ols_df['economic_growth_rate'][1]:.2f}' + r' \\ \vdots & \vdots \\ 1 & ' +
-                f'{ols_df['economic_growth_rate'][-1]:.2f}' + r' \end{bmatrix}')
+                f"{ols_df['economic_growth_rate'][0]:.2f}" + r' \\ 1 & ' +
+                f"{ols_df['economic_growth_rate'][1]:.2f}" + r' \\ \vdots & \vdots \\ 1 & ' +
+                f"{ols_df['economic_growth_rate'][-1]:.2f}" + r' \end{bmatrix}')
 
     y_vector = r'\mathbf{y} = \begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix}'
     y_values = (r'\mathbf{y} = \begin{bmatrix} ' +
-                f'{ols_df['unemployment_rate'][0]:.2f}' + r' \\ '
-                + f'{ols_df['unemployment_rate'][1]:.2f}' + r' \\ \vdots \\ ' +
-                f'{ols_df['unemployment_rate'][-1]:.2f}' + r' \end{bmatrix}')
+                f"{ols_df['unemployment_rate'][0]:.2f}" + r' \\ ' +
+                f"{ols_df['unemployment_rate'][1]:.2f}" + r' \\ \vdots \\ ' +
+                f"{ols_df['unemployment_rate'][-1]:.2f}" + r' \end{bmatrix}')
 
     with col3:
         st.subheader("Dependent Variable Vector")
@@ -532,9 +532,8 @@ def OLSExampleLayout():
 
     with col1:
         st.write('Formula')
-        st.latex(r'''
-        SSR = \mathbf{e}^\top \mathbf{e} = \mathbf{y}^\top \mathbf{y} - \boldsymbol{\beta}^\top \mathbf{X}^\top \mathbf{y}
-        ''')
+        st.latex(r'''SSR = \mathbf{e}^\top \mathbf{e} = \mathbf{y}^\top \mathbf{y} - \boldsymbol{\beta}^\top \mathbf{
+        X}^\top \mathbf{y} ''')
 
     with col2:
         st.write(f'Data')
@@ -679,7 +678,7 @@ def OLSExampleLayout():
         """
     )
 
-    Covariance_Matrix = (Residuals_Variance) * X_Variance_Matrix_Inverse
+    Covariance_Matrix = Residuals_Variance * X_Variance_Matrix_Inverse
     Beta_Standards_Errors = np.sqrt(Covariance_Matrix.diagonal())
 
     col1, col2, col3 = st.columns([3, 5, 3])
@@ -725,7 +724,7 @@ def OLSExampleLayout():
     Fake_Residuals_Vector_3 = Y_Vector - Fake_Y_Hat_3
     Fake_SSR_2 = (Fake_Residuals_Vector_3.transpose()).dot(Fake_Residuals_Vector_3)
     Fake_Residuals_Variance = Fake_SSR_2 / (len(Y_Vector) - Hat_Matrix.trace())
-    Fake_Covariance_Matrix = (Fake_Residuals_Variance) * X_Variance_Matrix_Inverse
+    Fake_Covariance_Matrix = Fake_Residuals_Variance * X_Variance_Matrix_Inverse
     Fake_Beta_Standards_Errors = np.sqrt(Fake_Covariance_Matrix.diagonal())
 
     fig9 = BetasPlot(
@@ -769,11 +768,9 @@ def OLSExampleLayout():
         st.write('t-statistic Formula')
         st.latex(r't = \frac{\beta}{\text{SSE}(\beta)}')
 
-
     with col2:
         st.write('Beta Lower Limits')
         st.latex(r'\text{Beta\_LL} = \beta - 1.96 \times \text{SSE}(\beta)')
-
 
     with col3:
         st.write('Beta Upper Limits')
