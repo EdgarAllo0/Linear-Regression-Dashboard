@@ -3,7 +3,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-from scipy.stats import t
 
 # Modules
 from src.linear_regression_dashboard.get_data import FredData
@@ -12,6 +11,9 @@ from src.linear_regression_dashboard.get_data import FredData
 from src.linear_regression_dashboard.plots import TwoLinesPlot
 from src.linear_regression_dashboard.plots import AdjustableScatterPlot
 from src.linear_regression_dashboard.plots import SSEPlot
+from src.linear_regression_dashboard.plots import SSTreemap
+from src.linear_regression_dashboard.plots import BetasPlot
+from src.linear_regression_dashboard.plots import TStudentTest
 
 
 def OLSExampleLayout():
@@ -579,3 +581,271 @@ def OLSExampleLayout():
         st.write(f'Data')
         st.metric(label='SSE', value=SSE.round(4))
 
+    st.text(
+        """
+        The R Squared is one of the measurements we use to assess our models. It shows how much of the real phenomena is 
+        explained by our regression model. Then the R_Squared might be obtain in the next forms:
+        """
+    )
+
+    R_Squared = 1 - (SSR/SST)
+
+    col1, col2 = st.columns([5, 5])
+
+    with col1:
+        st.write('Formula')
+        st.latex(r'R^2 = 1 - \frac{SSR}{SST}')
+
+    with col2:
+        st.write(f'Data')
+        st.metric(label='R Squared', value=R_Squared.round(4))
+
+    st.text(
+        """
+        It is sometimes weird to understand this phenomena. But the coefficients obtained by the OLS algorith are those
+        the minimize the Squared Sum of the Residuals, so sometimes the Squared Sum of the Estimates are going to grow
+        as well or indeed be negative (sometimes pretty strange caused by endogeneity).
+        """
+    )
+
+    b0_slider_4 = st.slider("Select a value for b0", -10.0, 10.0, 6.4294, key='b0_slider_4')
+
+    b1_slider_4 = st.slider("Select a value for b1", -1.0, 1.0, -0.2279, key='b1_slider_4')
+
+    Fake_Betas_2 = [b0_slider_4, b1_slider_4]
+    Fake_Y_Hat_2 = Information_Matrix.dot(Fake_Betas_2)
+    Fake_Residuals_Vector_2 = Y_Vector - Fake_Y_Hat_2
+    Fake_SSR = (Fake_Residuals_Vector_2.transpose()).dot(Fake_Residuals_Vector_2)
+    Fake_SSE = SST - Fake_SSR
+
+    col1, col2 = st.columns([7, 3])
+
+    with col1:
+        fig7 = SSTreemap(
+            Fake_SSR,
+            Fake_SSE,
+        )
+
+        st.plotly_chart(
+            fig7,
+            use_container_width=True
+        )
+
+    with col2:
+        st.write('The Metrics:')
+
+        st.metric(label='SSR', value=Fake_SSR.round(4))
+
+        st.metric(label='SSE', value=Fake_SSE.round(4))
+
+        st.metric(label='SST', value=(Fake_SSR + Fake_SSE).round(4))
+
+        st.metric(label='R Squared', value=(Fake_SSE/(Fake_SSR + Fake_SSE)).round(4))
+
+    st.divider()
+
+    st.title('The Variances of the Betas')
+
+    st.text(
+        """
+        To diagnose our Linear Regression Model we want to know the Covariance Matrix. Here we can obtain the Standard 
+        Errors of the Estimated Betas.
+    
+        First we have to obtain the Residuals Variance and for this we have to obtain the freedom degrees, which is just
+    
+            df = n - k
+    
+        n is the number of observations
+        k is the number of variables
+        """
+    )
+
+    Residuals_Variance = SSR / (len(Y_Vector) - Hat_Matrix.trace())
+
+    col1, col2 = st.columns([5, 5])
+
+    with col1:
+        st.write('Formula')
+        st.latex(r'\text{Var(u)} = \frac{SSR}{n - k}')
+
+    with col2:
+        st.write('The Residuals Variance')
+        st.metric(label='Var(u)', value=Residuals_Variance.round(4))
+
+    st.text(
+        """
+        Now we have to obtain the covariance matrix, the diagonal of this matrix will contain the variances of the
+        betas, the other cells will contain the covariances of the betas.
+        """
+    )
+
+    Covariance_Matrix = (Residuals_Variance) * X_Variance_Matrix_Inverse
+    Beta_Standards_Errors = np.sqrt(Covariance_Matrix.diagonal())
+
+    col1, col2, col3 = st.columns([3, 5, 3])
+
+    with col1:
+        st.write('Formula')
+        st.latex(r'''
+                C = \left(\frac{\mathbf{e}^\top \mathbf{e}}{n - k}\right) \left(\mathbf{X}^\top \mathbf{X}\right)^{-1}
+                ''')
+
+    with col2:
+        st.write('Covariance Matrix')
+        st.table(Covariance_Matrix)
+
+    with col3:
+        st.write('Betas Standard Errors')
+        st.table(Beta_Standards_Errors)
+
+    fig8 = BetasPlot(
+        list(Beta),
+        list(Beta_Standards_Errors)
+    )
+
+    st.plotly_chart(
+        fig8,
+        use_container_width=True
+    )
+
+    st.text(
+        """
+        When evaluating the statistical significance of the estimated betas, the rule of thumb says that, if the
+        standard errors interval cross the zero, the betas might NOT be statistical significant at the 5% of 
+        significance level.
+        """
+    )
+
+    b0_slider_5 = st.slider("Select a value for b0", -10.0, 10.0, 6.4294, key='b0_slider_5')
+
+    b1_slider_5 = st.slider("Select a value for b1", -1.0, 1.0, -0.2279, key='b1_slider_5')
+
+    Fake_Betas_3 = [b0_slider_5, b1_slider_5]
+    Fake_Y_Hat_3 = Information_Matrix.dot(Fake_Betas_3)
+    Fake_Residuals_Vector_3 = Y_Vector - Fake_Y_Hat_3
+    Fake_SSR_2 = (Fake_Residuals_Vector_3.transpose()).dot(Fake_Residuals_Vector_3)
+    Fake_Residuals_Variance = Fake_SSR_2 / (len(Y_Vector) - Hat_Matrix.trace())
+    Fake_Covariance_Matrix = (Fake_Residuals_Variance) * X_Variance_Matrix_Inverse
+    Fake_Beta_Standards_Errors = np.sqrt(Fake_Covariance_Matrix.diagonal())
+
+    fig9 = BetasPlot(
+        Fake_Betas_3,
+        list(Fake_Beta_Standards_Errors)
+    )
+
+    st.plotly_chart(
+        fig9,
+        use_container_width=True
+    )
+
+    st.divider()
+
+    st.title('Hypothesis Testing')
+
+    st.text(
+        """
+        The hypothesis testing help us to understand if the betas we calculated are statistical significant or not. For
+        this we need the Standard Errors of the Betas so we can:
+    
+            1) Obtain the Confidence Intervals of the Estimators
+            2) To prove Statistical Significance through hypothesis testing
+    
+        With the Betas and the standard errors we can obtain the T Values which are fundamental for the hypothesis 
+        testing; we want to prove if:
+    
+            H0: B == 0
+            HA: B =! 0
+    
+        """
+    )
+
+    T_Values = Beta / Beta_Standards_Errors
+    Beta_Lower_Limit = Beta - 1.96 * Beta_Standards_Errors
+    Beta_Upper_Limit = Beta + 1.96 * Beta_Standards_Errors
+
+    col1, col2, col3 = st.columns([3, 3, 3])
+
+    with col1:
+        st.write('t-statistic Formula')
+        st.latex(r't = \frac{\beta}{\text{SSE}(\beta)}')
+
+
+    with col2:
+        st.write('Beta Lower Limits')
+        st.latex(r'\text{Beta\_LL} = \beta - 1.96 \times \text{SSE}(\beta)')
+
+
+    with col3:
+        st.write('Beta Upper Limits')
+        st.latex(r'\text{Beta\_UL} = \beta + 1.96 \times \text{SSE}(\beta)')
+
+    col1, col2, col3 = st.columns([3, 3, 3])
+
+    with col1:
+
+        st.table(T_Values)
+
+    with col2:
+
+        st.table(Beta_Lower_Limit)
+
+    with col3:
+
+        st.table(Beta_Upper_Limit)
+
+    st.text(
+        """
+        Two rules of thumbs:
+    
+            1) If the t-Value obtain is less than the 2, we should not reject the null
+            2) If the Confidence Intervals cross the 0 threshold, we should not reject
+        
+        The p-values represents the probability of commiting a Type II error: rejecting when you should not reject.
+        """
+    )
+
+    degrees_of_freedom = len(Y_Vector) - Hat_Matrix.trace()
+
+    fig10 = TStudentTest(
+        T_Values[0].round(2),
+        degrees_of_freedom
+    )
+
+    st.plotly_chart(
+        fig10,
+        use_container_width=True
+    )
+
+    fig11 = TStudentTest(
+        T_Values[1].round(2),
+        degrees_of_freedom
+    )
+
+    st.plotly_chart(
+        fig11,
+        use_container_width=True
+    )
+
+    st.divider()
+
+    st.title('Checking Results with StatsModels')
+
+    st.text(
+        """
+        StatsModels is a Library that is very useful at doing econometrics. We can double check the value fo our model
+        using it:
+        
+        We can observe we obtained the same betas, standard errors, t-values, confidence intervals and R_Squared.
+        """
+    )
+
+    # Model specification
+    model = sm.OLS(
+        Y_Vector,
+        sm.add_constant(Information_Matrix)
+    )
+
+    # the results of the model
+    results = model.fit()
+
+    st.write(results.summary())

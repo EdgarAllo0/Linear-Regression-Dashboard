@@ -1,3 +1,6 @@
 from src.linear_regression_dashboard.plots.time_series_plot import TwoLinesPlot
 from src.linear_regression_dashboard.plots.scatter_plot import AdjustableScatterPlot
 from src.linear_regression_dashboard.plots.squared_sum_errors_plot import SSEPlot
+from src.linear_regression_dashboard.plots.squared_sums_treemap import SSTreemap
+from src.linear_regression_dashboard.plots.betas_plot import BetasPlot
+from src.linear_regression_dashboard.plots.t_student_test import TStudentTest
