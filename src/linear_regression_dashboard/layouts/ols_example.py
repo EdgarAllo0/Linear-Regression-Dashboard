@@ -14,6 +14,7 @@ from src.linear_regression_dashboard.plots import SSEPlot
 from src.linear_regression_dashboard.plots import SSTreemap
 from src.linear_regression_dashboard.plots import BetasPlot
 from src.linear_regression_dashboard.plots import TStudentTest
+from src.linear_regression_dashboard.plots import FisherTest
 
 
 def OLSExampleLayout():
@@ -820,6 +821,38 @@ def OLSExampleLayout():
 
     st.plotly_chart(
         fig11,
+        use_container_width=True
+    )
+
+    st.text(
+        """
+        The F Statistic  help us to prove Joint Significance. This means that we are checking if our models as a whole 
+        can explain the Y.
+    
+        The F statistic is distributed in a Xi Squared distribution with n - k and k - 1 degrees of freedom:
+        """
+    )
+
+    F_Stat = (SSE / (Hat_Matrix.trace() - 1)) / (SSR / (len(Y_Vector) - Hat_Matrix.trace()))
+
+    col1, col2 = st.columns([5, 5])
+
+    with col1:
+        st.write('Formula')
+        st.latex(r"F = \frac{\frac{SSR}{k-1}}{\frac{SSE}{n-k}}")
+
+    with col2:
+        st.write('Fisher Statistic')
+        st.metric(label='F', value=F_Stat.round(4))
+
+    fig12 = FisherTest(
+        F_Stat.round(2),
+        degrees_of_freedom,
+        1,
+    )
+
+    st.plotly_chart(
+        fig12,
         use_container_width=True
     )
 

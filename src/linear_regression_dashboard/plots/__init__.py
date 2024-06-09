@@ -4,3 +4,4 @@ from src.linear_regression_dashboard.plots.squared_sum_errors_plot import SSEPlo
 from src.linear_regression_dashboard.plots.squared_sums_treemap import SSTreemap
 from src.linear_regression_dashboard.plots.betas_plot import BetasPlot
 from src.linear_regression_dashboard.plots.t_student_test import TStudentTest
+from src.linear_regression_dashboard.plots.fisher_test import FisherTest
